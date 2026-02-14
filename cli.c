@@ -97,8 +97,22 @@ static int cli_list(int argc, char *argv[]) {
     return list_entries();
 }
 
+static int has_md_extension(const char *filename) {
+    size_t len = strlen(filename);
+
+    return len >= 3 && strcmp(filename + len - 3, ".md") == 0;
+}
+
 static int cli_export(int argc, char *argv[]) {
-    const char *output_file = (argc >= 3) ? argv[2] : "brag.md";
+    char output_file[256];
+
+    if (argc < 3) {
+        snprintf(output_file, sizeof(output_file), "brag.md");
+    } else if (has_md_extension(argv[2])) {
+        snprintf(output_file, sizeof(output_file), "%s", argv[2]);
+    } else {
+        snprintf(output_file, sizeof(output_file), "%s.md", argv[2]);
+    }
 
     return export_entries(output_file);
 }
