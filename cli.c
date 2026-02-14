@@ -1,15 +1,14 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
-#include <time.h>
 
 #include "cli.h"
-#include "entry.h"
 #include "storage.h"
 
 static int cli_add(int argc, char *argv[]);
 static int cli_list(int argc, char *argv[]);
 static int cli_search(int argc, char *argv[]);
+static int cli_export(int argc, char *argv[]);
 static void print_help(void);
 
 int cli_handle(int argc, char *argv[]) {
@@ -24,6 +23,7 @@ int cli_handle(int argc, char *argv[]) {
     const bool add_command = strcmp(argv[1], "add") == 0;
     const bool list_command = strcmp(argv[1], "list") == 0;
     const bool search_command = strcmp(argv[1], "search") == 0;
+    const bool export_command = strcmp(argv[1], "export") == 0;
 
     if (help_command) {
         print_help();
@@ -36,6 +36,8 @@ int cli_handle(int argc, char *argv[]) {
         return cli_list(argc, argv);
     } else if (search_command) {
         return cli_search(argc, argv);
+    } else if (export_command) {
+        return cli_export(argc, argv);
     } else {
         printf("Unknown command: %s\n\n", argv[1]);
         print_help();
@@ -49,6 +51,7 @@ static void print_help(void) {
     printf("  brag add\n");
     printf("  brag list\n");
     printf("  brag search <term>\n");
+    printf("  brag export [file]\n");
     printf("  brag help | -h | --help\n");
 }
 
@@ -92,6 +95,12 @@ static int cli_list(int argc, char *argv[]) {
     }
     
     return list_entries();
+}
+
+static int cli_export(int argc, char *argv[]) {
+    const char *output_file = (argc >= 3) ? argv[2] : "brag.md";
+
+    return export_entries(output_file);
 }
 
 static int cli_search(int argc, char *argv[]) {
