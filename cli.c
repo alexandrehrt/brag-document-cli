@@ -10,7 +10,9 @@ static int cli_add(int argc, char *argv[]);
 static int cli_list(int argc, char *argv[]);
 static int cli_search(int argc, char *argv[]);
 static int cli_export(int argc, char *argv[]);
+static int cli_remove(int argc, char *argv[]);
 static void print_help(void);
+static int has_md_extension(const char *filename);
 
 int cli_handle(int argc, char *argv[]) {
     if (argc < 2) {
@@ -25,6 +27,7 @@ int cli_handle(int argc, char *argv[]) {
     const bool list_command = strcmp(argv[1], "list") == 0;
     const bool search_command = strcmp(argv[1], "search") == 0;
     const bool export_command = strcmp(argv[1], "export") == 0;
+    const bool remove_command = strcmp(argv[1], "remove") == 0;
 
     if (help_command) {
         print_help();
@@ -39,21 +42,13 @@ int cli_handle(int argc, char *argv[]) {
         return cli_search(argc, argv);
     } else if (export_command) {
         return cli_export(argc, argv);
+    } else if (remove_command) {
+        return cli_remove(argc, argv);
     } else {
         printf("Unknown command: %s\n\n", argv[1]);
         print_help();
         return 1;
     }
-}
-
-static void print_help(void) {
-    printf("Brag CLI\n");
-    printf("Usage:\n");
-    printf("  brag add\n");
-    printf("  brag list\n");
-    printf("  brag search <term>\n");
-    printf("  brag export [file]\n");
-    printf("  brag help | -h | --help\n");
 }
 
 static int cli_add(int argc, char *argv[]) {
@@ -100,12 +95,6 @@ static int cli_list(int argc, char *argv[]) {
     return list_entries();
 }
 
-static int has_md_extension(const char *filename) {
-    size_t len = strlen(filename);
-
-    return len >= 3 && strcmp(filename + len - 3, ".md") == 0;
-}
-
 static int cli_export(int argc, char *argv[]) {
     const char *home = getenv("HOME");
 
@@ -137,4 +126,37 @@ static int cli_search(int argc, char *argv[]) {
     }
 
     return search_entries(argv[2]);
+}
+
+static int cli_remove(int argc, char *argv[]) {
+    if (argc < 3) {
+        printf("Usage: brag remove <id>\n");
+        return 1;
+    }
+
+    int id = atoi(argv[2]);
+
+    if (id <= 0) {
+        printf("Error: invalid ID.\n");
+        return 1;
+    }
+
+    return remove_entry(id);
+}
+
+static void print_help(void) {
+    printf("Brag CLI\n");
+    printf("Usage:\n");
+    printf("  brag add\n");
+    printf("  brag list\n");
+    printf("  brag search <term>\n");
+    printf("  brag export [file]\n");
+    printf("  brag remove <id>\n");
+    printf("  brag help | -h | --help\n");
+}
+
+static int has_md_extension(const char *filename) {
+    size_t len = strlen(filename);
+
+    return len >= 3 && strcmp(filename + len - 3, ".md") == 0;
 }

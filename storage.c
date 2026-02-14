@@ -200,6 +200,52 @@ int export_entries(const char *output_file) {
     return 0;
 }
 
+int remove_entry(int id) {
+    FILE *file = fopen(get_db_path(), "r");
+
+    if (file == NULL) {
+        printf("Error: could not open database.\n");
+        return 1;
+    }
+
+    char lines[1024][1024];
+    int count = 0;
+    int found = 0;
+    Entry entry;
+
+    while (fgets(lines[count], sizeof(lines[count]), file)) {
+        if (parse_line(lines[count], &entry) && entry.id == id) {
+            found = 1;
+            continue;
+        }
+        count++;
+    }
+
+    fclose(file);
+
+    if (!found) {
+        printf("Entry with ID %d not found.\n", id);
+        return 1;
+    }
+
+    file = fopen(get_db_path(), "w");
+
+    if (file == NULL) {
+        printf("Error: could not open database.\n");
+        return 1;
+    }
+
+    for (int i = 0; i < count; i++) {
+        fputs(lines[i], file);
+    }
+
+    fclose(file);
+
+    printf("Entry %d removed.\n", id);
+
+    return 0;
+}
+
 static int strcasestr_match(const char *haystack, const char *needle) {
     size_t needle_len = strlen(needle);
     size_t haystack_len = strlen(haystack);
