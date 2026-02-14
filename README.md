@@ -1,6 +1,6 @@
 # Brag CLI
 
-A simple command-line tool to track your daily accomplishments. Written in C.
+A simple command-line tool to track your daily accomplishments. Written in C. Built <del>almost</del> without AI, for learning purposes and daily usage.
 
 ## Features
 
