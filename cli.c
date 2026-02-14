@@ -1,5 +1,6 @@
 #include <stdbool.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "cli.h"
@@ -106,15 +107,25 @@ static int has_md_extension(const char *filename) {
 }
 
 static int cli_export(int argc, char *argv[]) {
-    char output_file[256];
+    const char *home = getenv("HOME");
+
+    if (home == NULL) {
+        printf("Error: could not determine home directory.\n");
+        return 1;
+    }
+
+    char filename[256];
 
     if (argc < 3) {
-        snprintf(output_file, sizeof(output_file), "brag.md");
+        snprintf(filename, sizeof(filename), "brag.md");
     } else if (has_md_extension(argv[2])) {
-        snprintf(output_file, sizeof(output_file), "%s", argv[2]);
+        snprintf(filename, sizeof(filename), "%s", argv[2]);
     } else {
-        snprintf(output_file, sizeof(output_file), "%s.md", argv[2]);
+        snprintf(filename, sizeof(filename), "%s.md", argv[2]);
     }
+
+    char output_file[512];
+    snprintf(output_file, sizeof(output_file), "%s/%s", home, filename);
 
     return export_entries(output_file);
 }
