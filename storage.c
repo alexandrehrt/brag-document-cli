@@ -1,11 +1,40 @@
 #include <ctype.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
 #include <time.h>
 
 #include "storage.h"
 
-#define DB_FILE "brag.db"
+#define BRAG_DIR ".brag"
+#define DB_FILENAME "brag.db"
+
+static const char *get_db_path(void) {
+    static char path[512];
+    static int initialized = 0;
+
+    if (initialized) {
+        return path;
+    }
+
+    const char *home = getenv("HOME");
+
+    if (home == NULL) {
+        snprintf(path, sizeof(path), "%s", DB_FILENAME);
+        initialized = 1;
+        return path;
+    }
+
+    char dir[512];
+    snprintf(dir, sizeof(dir), "%s/%s", home, BRAG_DIR);
+    mkdir(dir, 0755);
+
+    snprintf(path, sizeof(path), "%s/%s", dir, DB_FILENAME);
+    initialized = 1;
+
+    return path;
+}
 
 static int strcasestr_match(const char *haystack, const char *needle);
 static int parse_line(const char *line, Entry *entry);
@@ -20,7 +49,7 @@ int save_entry(Entry *entry) {
     int current_id;
 
     // Find last ID
-    file = fopen(DB_FILE, "r");
+    file = fopen(get_db_path(), "r");
 
     if (file != NULL) {
         while (fgets(line, sizeof(line), file)) {
@@ -42,7 +71,7 @@ int save_entry(Entry *entry) {
              "%Y-%m-%d %H:%M:%S", local);
 
     // Open file for append
-    file = fopen(DB_FILE, "a");
+    file = fopen(get_db_path(), "a");
 
     if (file == NULL) {
         printf("Error: could not open file.\n");
@@ -63,7 +92,7 @@ int save_entry(Entry *entry) {
 }
 
 int list_entries() {
-    FILE *file = fopen(DB_FILE, "r");
+    FILE *file = fopen(get_db_path(), "r");
 
     if (file == NULL) {
         return 1;
@@ -86,7 +115,7 @@ int list_entries() {
 }
 
 int search_entries(const char *term) {
-    FILE *file = fopen(DB_FILE, "r");
+    FILE *file = fopen(get_db_path(), "r");
 
     if (file == NULL) {
         return 1;
@@ -121,7 +150,7 @@ int search_entries(const char *term) {
 }
 
 int export_entries(const char *output_file) {
-    FILE *db = fopen(DB_FILE, "r");
+    FILE *db = fopen(get_db_path(), "r");
 
     if (db == NULL) {
         printf("Error: could not open database.\n");

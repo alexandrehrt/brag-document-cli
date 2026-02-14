@@ -56,6 +56,7 @@ static void print_help(void) {
 }
 
 static int cli_add(int argc, char *argv[]) {
+    (void)argv;
     if (argc > 2) {
         printf("Usage: brag add\n");
         return 1;
@@ -89,6 +90,7 @@ static int cli_add(int argc, char *argv[]) {
 }
 
 static int cli_list(int argc, char *argv[]) {
+    (void)argv;
     if (argc > 2) {
         printf("Usage: brag list\n");
         return 1;

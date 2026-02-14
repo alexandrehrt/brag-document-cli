@@ -1,19 +1,23 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -std=c11
-
-SRC = main.c cli.c storage.c
-OBJ = $(SRC:.c=.o)
 TARGET = brag
+PREFIX = /usr/local/bin
 
-all: $(TARGET)
+# Build the project
+all:
+	$(CC) $(CFLAGS) -o $(TARGET) main.c cli.c storage.c
 
-$(TARGET): $(OBJ)
-	$(CC) $(CFLAGS) -o $@ $^
+# Build, copy the binary to PATH and clean up (requires sudo)
+install: all
+	cp $(TARGET) $(PREFIX)/$(TARGET)
+	rm -f $(TARGET)
 
-%.o: %.c
-	$(CC) $(CFLAGS) -c -o $@ $<
+# Remove the binary from PATH (requires sudo)
+uninstall:
+	rm -f $(PREFIX)/$(TARGET)
 
+# Remove the local binary
 clean:
-	rm -f $(OBJ) $(TARGET)
+	rm -f $(TARGET)
 
-.PHONY: all clean
+.PHONY: all install uninstall clean
